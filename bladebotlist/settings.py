@@ -26,14 +26,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main_site.apps.MainSiteConfig',
+    'main_site.apps.MainSiteConfig',  
     'api.apps.ApiConfig',
-    'bladebotlist',  # <--- THIS LINE FIXES THE "UNKNOWN COMMAND" ERROR
+    'bladebotlist', 
     'django_hosts',
     'rest_framework',
     'rest_framework.authtoken',
 ]
-
 MIDDLEWARE = [
     'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
