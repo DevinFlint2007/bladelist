@@ -12,7 +12,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', cast=bool, default=False)
 
 if DEBUG:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['hype-advertising.onrender.com', 'localhost', '127.0.0.1', '.onrender.com']
 else:
     # Added .onrender.com so the site works on Render
     ALLOWED_HOSTS = ['.bladelist.gg', '.onrender.com']
