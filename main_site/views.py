@@ -22,6 +22,7 @@ hasher = Hasher()
 discord_client = DiscordAPIClient()
 
 # --- SAFE DATA FETCHING FUNCTIONS ---
+# These prevent the site from crashing if the database is empty
 def get_bot_tags():
     try:
         return BotTag.objects.all()
@@ -78,4 +79,167 @@ def support_server_invite(request):
 
 def bot_invite_counter(request, bot_id):
     try:
-        bot = Bot.objects.
+        bot = Bot.objects.get(id=bot_id)
+        bot.meta.total_invites += 1
+        bot.meta.save()
+        return redirect(to=bot.invite_link)
+    except:
+        return render(request, "404.html")
+
+def server_invite_counter(request, server_id):
+    try:
+        server = Server.objects.get(id=server_id)
+        server.meta.total_invites += 1
+        server.meta.save()
+        return redirect(to=server.invite_link)
+    except:
+        return render(request, "404.html")
+
+class BotView(View, ResponseMixin):
+    template_name = "bot_page.html"
+    model = Bot
+
+    def get(self, request, bot_id):
+        try:
+            bot = self.model.objects.get(id=bot_id)
+            if bot.banned or not bot.verified:
+                if request.user.is_authenticated:
+                    if request.user.member == bot.owner or request.user.is_staff:
+                        return render(request, self.template_name, {"bot": bot})
+                return render(request, "404.html")
+            return render(
+                request, self.template_name, {
+                    "bot": bot,
+                    "custom_og_image": bot.avatar_url,
+                    "custom_og_title": bot.name,
+                    "custom_og_desc": bot.short_desc
+                }
+            )
+        except self.model.DoesNotExist:
+            return render(request, "404.html")
+
+class LoginView(View):
+    template_name = 'index.html'
+    
+    def get(self, request):
+        code = request.GET.get('code')
+        popup = request.GET.get('popup')
+        oauth = popup_oauth if popup == "True" else normal_oauth
+        
+        if code is not None:
+            token_json = oauth.get_token_json(code)
+            user_json = oauth.get_user_json(token_json.get("access_token"))
+            user_json["token_data"] = token_json
+            user_id = user_json.get("id")
+            user = authenticate(username=user_id, password=hasher.get_hashed_pass(user_id))
+            
+            if user is None:
+                user = create_user(user_json)
+            else:
+                update_user(user, user_json)
+                
+            if not user.member.banned:
+                login(request, user)
+                return redirect("/")
+            else:
+                return render(request, self.template_name, {"banned": True, "search": True})
+        
+        return render(request, self.template_name, {"error": "Internal Server Error", "search": True})
+
+class IndexView(View):
+    template_name = "index.html"
+
+    def get(self, request):
+        recent_bots = Bot.objects.filter(verified=True, banned=False, owner__banned=False).order_by('-date_added')[:8]
+        trending_bots = Bot.objects.filter(verified=True, banned=False, owner__banned=False).order_by('-votes')[:8]
+        return render(request, self.template_name, {
+            "search": True,
+            "random_bots": get_random_bots(),
+            "recent_bots": recent_bots,
+            "trending_bots": trending_bots
+        })
+
+class BotListView(ListView, ResponseMixin):
+    template_name = "bot_list.html"
+    model = Bot
+    paginate_by = 40
+    extra_context = {"search": True, "logo_off": True}
+
+    def get_queryset(self):
+        return self.model.objects.filter(verified=True, banned=False, owner__banned=False).order_by('-votes')
+
+class BotAddView(LoginRequiredMixin, View):
+    template_name = "bot_add.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {"tags": get_bot_tags()})
+
+    def post(self, request):
+        data = request.POST
+        bot_id = data.get("id")
+        context = {"tags": get_bot_tags()}
+        
+        if bot_id and int(bot_id) <= 9223372036854775807:
+            if not Bot.objects.filter(id=bot_id).exists():
+                resp = discord_client.get_bot_info(bot_id)
+                if resp.status_code == 200:
+                    resp_data = resp.json()
+                    bot = Bot.objects.create(
+                        id=bot_id,
+                        name=resp_data.get("username"),
+                        owner=request.user.member,
+                        invite_link=data.get("invite"),
+                        date_added=datetime.now(timezone.utc),
+                        avatar=resp_data.get("avatar"),
+                        short_desc=data.get("short_desc")
+                    )
+                    bot.tags.set(BotTag.objects.filter(name__in=data.getlist('tags')))
+                    bot.meta.save()
+                    return render(request, "profile_page.html", {"member": request.user.member, "success": True})
+        return render(request, self.template_name, context)
+
+class ServerModerationView(LoginRequiredMixin, View, ResponseMixin):
+    def post(self, request):
+        if not request.user.is_staff:
+            return self.json_response_401()
+        server_id = request.POST.get("server_id")
+        try:
+            server = Server.objects.get(id=server_id)
+            server.verification_status = "UNDER_REVIEW"
+            server.meta.moderator = request.user.member
+            server.meta.save()
+            server.save()
+            return redirect("staff_panel")
+        except:
+            return self.json_response_404()
+
+class StaffView(LoginRequiredMixin, View, ResponseMixin):
+    template_name = "staff.html"
+
+    def get(self, request):
+        if request.user.is_staff:
+            context = {
+                "bots_awaiting_review": Bot.objects.filter(verification_status="UNVERIFIED")[:10],
+                "servers_awaiting_review": Server.objects.filter(verification_status="UNVERIFIED")[:10],
+            }
+            return render(request, self.template_name, context)
+        return render(request, "404.html")
+
+class ServerIndexView(View, ResponseMixin):
+    template_name = "server_index.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {
+            "random_servers": get_random_servers(),
+            "recent_servers": Server.objects.filter(verified=True).order_by('-date_added')[:8],
+            "tags": get_server_tags()
+        })
+
+class ProfileView(LoginRequiredMixin, View):
+    template_name = "profile_page.html"
+    def get(self, request, user_id=None):
+        try:
+            member = Member.objects.get(id=user_id) if user_id else request.user.member
+            return render(request, self.template_name, {"member": member})
+        except:
+            return render(request, "404.html")
