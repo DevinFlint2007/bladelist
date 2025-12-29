@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,12 +15,14 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool, default=False)
 
-if DEBUG:
-    ALLOWED_HOSTS = ['hype-advertising.onrender.com', 'localhost', '127.0.0.1', '.onrender.com']
-else:
-    # Added .onrender.com so the site works on Render
-    ALLOWED_HOSTS = ['.bladelist.gg', '.onrender.com']
-
+# Combined ALLOWED_HOSTS for both local and Render
+ALLOWED_HOSTS = [
+    'hype-advertising.onrender.com', 
+    '.onrender.com', 
+    'localhost', 
+    '127.0.0.1', 
+    '.bladelist.gg'
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -36,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 ]
+
 MIDDLEWARE = [
     'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -70,12 +74,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bladebotlist.wsgi.application'
 
-
-# Database
-# This uses your DATABASE_URL from Render or falls back to individual variables
+# --- DATABASE CONFIGURATION ---
+# Fixed to handle Port 22552 and SSL requirements for Aiven
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL', default=f"postgres://{config('DB_USER')}:{config('DB_PASS')}@{config('DB_HOST')}:5432/{config('DB_NAME')}")
+        default=config('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=True
     )
 }
 
@@ -108,7 +114,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Sensitive variables (Safe for Public Repo - must be in Render Environment tab)
+# Sensitive variables
 OAUTH_CLIENT_ID = config('OAUTH_CLIENT_ID')
 OAUTH_CLIENT_SECRET = config('OAUTH_CLIENT_SECRET')
 ENCRYPTION_SALT = config('ENCRYPTION_SALT')
