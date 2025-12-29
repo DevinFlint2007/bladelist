@@ -4,34 +4,32 @@
 <head>
   <meta charset='utf-8'>
   <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-  <title>BladeList - Servers</title>
+  <title>Hype Advertising - Servers</title>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
   <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/ico" sizes="16x16">
   <link rel='stylesheet' type='text/css' media='screen' href="{% static 'css/servers.css' %}">
 
-    <meta name="description" content="BladeList">
+    <meta name="description" content="Hype Advertising">
     <meta property="og:image" content="{% if custom_og_image %}{{ custom_og_image }}{% else %}https://bladelist.gg/static/img/logo.png{% endif %}" />
-    <meta property="og:image:alt" content="{% if custom_og_desc %}{{ custom_og_desc }}{% else %}BladeList was designed for bot users and bot devlopers to manage with ease your bot page and create something clean and beautiful{% endif %}" />
-    <meta property="og:site_name" content="Bladelist" />
-    <meta property="og:title" content="{% if custom_og_title %}{{ custom_og_title }}{% else %}Bladelist - Bot & Server Listing{% endif %}" />
-    <meta property="og:url" content="https://bladelist.gg" />
-    <meta property="og:description" content="{% if custom_og_desc %}{{ custom_og_desc }}{% else %}BladeList was designed for bot users and bot developers to manage with ease your bot page and create something clean and beautiful{% endif %}"/>
-  <!-- bootstrap -->
+    <meta property="og:image:alt" content="{% if custom_og_desc %}{{ custom_og_desc }}{% else %}Hype Advertising - The ultimate bot and server listing platform.{% endif %}" />
+    <meta property="og:site_name" content="Hype Advertising" />
+    <meta property="og:title" content="{% if custom_og_title %}{{ custom_og_title }}{% else %}Hype Advertising - Bot & Server Listing{% endif %}" />
+    <meta property="og:url" content="https://hype-advertising.onrender.com" />
+    <meta property="og:description" content="{% if custom_og_desc %}{{ custom_og_desc }}{% else %}Hype Advertising was designed for bot users and bot developers to manage your bot page with ease.{% endif %}"/>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 
-  <!-- fontawesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 
-  <!-- monaco editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/loader.min.js" integrity="sha512-gWqaPfGsZiCkYB6e5mNN4SMRpEvLGItLBqgOAoyLSKtDxWS2O1YPcOeGTy8d8l00gqc8rVue9ae/ncZqhmfj4g==" crossorigin="anonymous"></script>
 
 </head>
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><img class="navbar-logo" width="32px" height="32px" src="{% static 'img/logo.svg' %}"> BladeList</a>
+      <a class="navbar-brand" href="#"><img class="navbar-logo" width="32px" height="32px" src="{% static 'img/logo.svg' %}"> Hype Advertising</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -45,7 +43,6 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="https://docs.bladelist.gg"><i class="fas fa-book"></i> Docs</a>
-
             </li>
             <li class="nav-item">
               <a class="nav-link" href="https://discord.gg/D3JmwgQ6Vu"><i class="fab fa-discord"></i> Community</a>
@@ -89,11 +86,12 @@
       </div>
     </div>
   </nav>
+
   <div class="bg-customdark text-white text-center p-5">
     {% if not search_off %}
     {% if not logo_off %}
     <img src="{% static 'img/logo.svg' %}" class="logo rounded-circle" width="256" height="256">{% endif %}
-    <h1 class="brand-title">BladeList</h1>
+    <h1 class="brand-title">Hype Advertising</h1>
     <h5>Need to fill your server list? Search in <a class="text-primary text-decoration-none">400+</a> Discord servers!</h5>
     <form action="{% url 'server_search' %}" method="GET">
           <div>
@@ -112,12 +110,11 @@
             <a href="{% url 'server_search' %}?tag=Emotes"><button class="btn btn-primary"><i class="far fa-smile-wink"></i> Emotes</button></a>
             <a href="{% url 'server_search' %}?tag=Youtube"><button class="btn btn-primary"><i class="fab fa-youtube"></i> Youtube</button></a>
         </div>
-
   {% endif %}
   </div>
-      <div class="wave wave-top"></div>
-  {% block content %} {% endblock content %}
 
+  <div class="wave wave-top"></div>
+  {% block content %} {% endblock content %}
 
 {% block script %} {% endblock script %}
 
@@ -128,12 +125,12 @@
   <div class="bg-customdark text-white text-center p-5">
     <div class='row'>
       <div class='col-xs-6 col-md-2'>
-        <h1>BladeList</h1>
+        <h1>Hype Advertising</h1>
         <div class="text-white fs-2">
-          <a href="https://twitter.com/bladelist" class="text-primary"><i class="fab fa-twitter"></i></a>
-          <a href="https://discord.gg/bbl" class="text-discord"><i class="fab fa-discord"></i></a>
-          <a href="https://github.com/bladebotlist" class="text-dark"><i class="fab fa-github"></i></a>
-          <a href="mailto:contact@aisurustudios.com" class="text-white"><i class="fas fa-envelope"></i></a>
+          <a href="#" class="text-primary"><i class="fab fa-twitter"></i></a>
+          <a href="https://discord.gg/D3JmwgQ6Vu" class="text-discord"><i class="fab fa-discord"></i></a>
+          <a href="#" class="text-dark"><i class="fab fa-github"></i></a>
+          <a href="#" class="text-white"><i class="fas fa-envelope"></i></a>
         </div>
       </div>
       <div class='col-xs-6 col-md-2'>
@@ -171,9 +168,7 @@
         <h3>Partners</h3>
         <ul class="list-unstyled">
           <li>
-            <a class="text-light" href="https://infinitybotlist.com">Infinity Bot List</a>
-            <a class="text-light" href="https://consteagle.com/">ConstEagle</a>
-            <a class="text-light" href="https://bhbotlist.xyz">bhbotlist</a>
+            <a class="text-light" href="#">Become a Partner</a>
           </li>
         </ul>
       </div>
@@ -222,14 +217,4 @@
         <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
         <script>swal("You are banned!", "Contact administrator if this was a mistake", "error");</script>
         {% endif %}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-198305823-2">
-</script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-198305823-2');
-</script>
 </html>
