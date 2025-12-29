@@ -11,11 +11,12 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool, default=False)
 
-# Added .onrender.com to ensure your site works on Render's default URL
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
+    # Added .onrender.com so the site works on Render
     ALLOWED_HOSTS = ['.bladelist.gg', '.onrender.com']
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -27,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main_site.apps.MainSiteConfig',
     'api.apps.ApiConfig',
-    'bladebotlist', 
+    'bladebotlist',  # <--- THIS LINE FIXES THE "UNKNOWN COMMAND" ERROR
     'django_hosts',
     'rest_framework',
     'rest_framework.authtoken',
@@ -67,9 +68,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bladebotlist.wsgi.application'
 
-# Database configuration
-# This uses DATABASE_URL if available (Render standard), 
-# otherwise falls back to individual credentials for local dev.
+
+# Database
+# This uses your DATABASE_URL from Render or falls back to individual variables
 DATABASES = {
     'default': dj_database_url.config(
         default=config('DATABASE_URL', default=f"postgres://{config('DB_USER')}:{config('DB_PASS')}@{config('DB_HOST')}:5432/{config('DB_NAME')}")
@@ -97,7 +98,7 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'assets'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -105,11 +106,11 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Sensitive variables pulled from Render Environment Variables (Safe for Public Repo)
+# Sensitive variables (Safe for Public Repo - must be in Render Environment tab)
 OAUTH_CLIENT_ID = config('OAUTH_CLIENT_ID')
 OAUTH_CLIENT_SECRET = config('OAUTH_CLIENT_SECRET')
 ENCRYPTION_SALT = config('ENCRYPTION_SALT')
-ENCRYPTION_ITERATION = config('ENCRYPTION_ITERATION', cast=int)
+ENCRYPTION_ITERATION = config('ENCRYPTION_ITERATION', cast=int, default=100000)
 DISCORD_API_TOKEN = config('DISCORD_API_TOKEN')
 AUTH_HANDLER_URL = config('AUTH_HANDLER_URL')
 AUTH_CALLBACK_URL = config('AUTH_CALLBACK_URL')
