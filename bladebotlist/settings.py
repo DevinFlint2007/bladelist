@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main_site.apps.MainSiteConfig',
     'api.apps.ApiConfig',
-    'bladebotlist',  # Added this so 'runbot' is recognized
+    'bladebotlist', 
     'django_hosts',
     'rest_framework',
     'rest_framework.authtoken',
