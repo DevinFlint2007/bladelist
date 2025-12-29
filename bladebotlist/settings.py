@@ -1,12 +1,9 @@
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
@@ -14,15 +11,13 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool, default=False)
 
-
+# Added .onrender.com to ensure your site works on Render's default URL
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = ['.bladelist.gg']
-
+    ALLOWED_HOSTS = ['.bladelist.gg', '.onrender.com']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -32,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main_site.apps.MainSiteConfig',
     'api.apps.ApiConfig',
+    'bladebotlist',  # Added this so 'runbot' is recognized
     'django_hosts',
     'rest_framework',
     'rest_framework.authtoken',
@@ -71,79 +67,49 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bladebotlist.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
+# Database configuration
+# This uses DATABASE_URL if available (Render standard), 
+# otherwise falls back to individual credentials for local dev.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config("DB_NAME"),
-        'USER': config("DB_USER"),
-        'PASSWORD': config("DB_PASS"),
-        'HOST': config("DB_HOST"),
-        'PORT': '5432',
-    },
-}
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default=f"postgres://{config('DB_USER')}:{config('DB_PASS')}@{config('DB_HOST')}:5432/{config('DB_NAME')}")
     )
 }
 
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',),
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.TokenAuthentication',),
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',)
+}
+
 # Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
+# Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'assets'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Sensitive variables pulled from Render Environment Variables (Safe for Public Repo)
 OAUTH_CLIENT_ID = config('OAUTH_CLIENT_ID')
 OAUTH_CLIENT_SECRET = config('OAUTH_CLIENT_SECRET')
 ENCRYPTION_SALT = config('ENCRYPTION_SALT')
-ENCRYPTION_ITERATION = config('ENCRYPTION_ITERATION')
+ENCRYPTION_ITERATION = config('ENCRYPTION_ITERATION', cast=int)
 DISCORD_API_TOKEN = config('DISCORD_API_TOKEN')
 AUTH_HANDLER_URL = config('AUTH_HANDLER_URL')
 AUTH_CALLBACK_URL = config('AUTH_CALLBACK_URL')
